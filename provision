@@ -14,7 +14,58 @@ sudo adduser vagrant disk
 sudo adduser vagrant tty
 sudo adduser vagrant dialout
 
+mkdir ~/mp1
+git clone git@github.com:4ms/STM32MP1_playground.git ~/mp1/playground
+
 echo "Not sure if this is needed (not running them):"
 echo "sudo apt install virtualbox-ext-pack" 
 echo "sudo usermod -a -G vboxusers vagrant"
+echo "Plug your host computer into CN11 (micro-USB) on the MP1 Disco board."
+echo "Open VirtualBox and add the USB device"
+echo ""
+
+echo "~/mp1 is a shared folder between host/guest. It contains the SDK and the workspace"
+echo ""
+
+echo "Download STM32MP1 Developer Package (en.SOURCES...xz) and Yocto SDK (en.SDK...xz)"
+echo "from st.com: https://my.st.com/content/my_st_com/en/products/embedded-software/mcu-mpu-embedded-software/stm32-embedded-software/stm32-mpu-openstlinux-distribution/stm32mp1dev.html"
+echo "Save them to ~/mp1/"
+echo "Unzip them: "
+echo "cd ~/mp1 && tar xvf *.xz"
+echo ""
+
+echo "Install the SDK (you will need to edit path as version numbers will change):"
+echo "./mp1/stm32mp1-openstlinux-5-4-dunfell-mp1-20-11-12/sdk/st-image-weston-openstlinux-weston-stm32mp1-x86_64-toolchain-3.1-openstlinux-5-4-dunfell-mp1-20-11-12.sh"
+echo ""
+
+echo "After it's done installing, you can start the dev environment by running:"
+echo ". /opt/st/stm32mp1/3.1-openstlinux-5-4-dunfell-mp1-20-11-12/environment-setup-cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi"
+echo ""
+echo "A handy alias is nice (again, edit the path):"
+echo "echo \"alias startmp1='. /opt/st/stm32mp1/3.1-openstlinux-5-4-dunfell-mp1-20-11-12/environment-setup-cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi' >> ~/.bashrc\" "
+echo ""
+
+echo "Load a CM4 program:"
+echo "on host: "
+echo "make -j16"
+echo "scp build/main.elf root@192.168.7.1:/lib/firmware"
+echo ""
+echo "ssh root@192.168.7.1"
+echo "echo stop > /sys/class/remoteproc/remoteproc0/state"
+echo "echo \"main.elf\" > /sys/class/remoteproc/remoteproc0/firmware"
+echo "echo start > /sys/class/remoteproc/remoteproc0/state"
+echo ""
+echo "Debug: "
+echo "From host:"
+echo "make -j16"
+echo "scp build/main.elf root@192.168.7.1:/lib/firmware"
+echo "ssh root@192.168.7.1"
+echo "echo stop > /sys/class/remoteproc/remoteproc0/state"
+echo ""
+echo "From virtual machine:"
+echo "startmp1"
+echo "sudo openocd -f board/stm32mp15x_dk2.cfg &"
+echo "$GDB mp1/playground/GPIO_EXIT/build/main.elf"
+#Todo: use ssh to run a command
+
 
